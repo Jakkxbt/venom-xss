@@ -7,17 +7,20 @@ import argparse
 from colorama import Fore, Style, init
 import os
 
-def load_payloads(filename):
-    with open(filename, "r") as f:
-        payloads = []
-        for line in f:
-            line = line.strip()
-            # Ignore comments and blank lines
-            if line and not line.startswith("//") and not line.startswith("#"):
-                # Remove the long "aaaa..." prefix if present (optional)
-                payload = line.replace("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "")
-                payloads.append(payload)
-        return payloads
+def load_payloads(filenames):
+    payloads = []
+    for filename in filenames:
+        try:
+            with open(filename, "r") as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith("//") and not line.startswith("#"):
+                        payload = line.replace("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "")
+                        payloads.append(payload)
+        except Exception as e:
+            print(Fore.YELLOW + f"[!] Could not load {filename}: {e}" + Style.RESET_ALL)
+    return payloads
+
 
 
 init(autoreset=True)
@@ -61,8 +64,12 @@ def submit_form(form, url, payload):
     return res
 
 def scan_xss(url):
-    payload_file = os.path.join(os.path.dirname(__file__), "payloads.txt")
-    payloads = load_payloads(payload_file)
+    payload_files = [
+        os.path.join(os.path.dirname(__file__), "payloads.txt"),
+        os.path.join(os.path.dirname(__file__), "XSSv2.txt"),
+    ]
+    payloads = load_payloads(payload_files)
+    ...
 
     forms = find_forms(url)
     print(Fore.LIGHTGREEN_EX + f"[+] Detected {len(forms)} forms on {url}." + Style.RESET_ALL)

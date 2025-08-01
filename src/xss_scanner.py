@@ -36,7 +36,6 @@ def print_banner():
     except Exception:
         print(Fore.CYAN + "VENOM XSS SCANNER\n" + Style.RESET_ALL)
 
-XSS_PAYLOAD = "<script>alert('XSS')</script>"
 
 def find_forms(url):
     soup = BeautifulSoup(requests.get(url).text, "html.parser")
@@ -62,15 +61,22 @@ def submit_form(form, url, payload):
     return res
 
 def scan_xss(url):
+    payload_file = os.path.join(os.path.dirname(__file__), "payloads.txt")
+    payloads = load_payloads(payload_file)
+
     forms = find_forms(url)
     print(Fore.LIGHTGREEN_EX + f"[+] Detected {len(forms)} forms on {url}." + Style.RESET_ALL)
     for idx, form in enumerate(forms, 1):
         print(Fore.LIGHTBLUE_EX + f"[>] Testing form #{idx}" + Style.RESET_ALL)
-        resp = submit_form(form, url, XSS_PAYLOAD)
-        if XSS_PAYLOAD in resp.text:
-            print(Fore.LIGHTMAGENTA_EX + f"[!] XSS vulnerability detected in form #{idx} ({url})" + Style.RESET_ALL)
-        else:
+        vulnerable = False
+        for payload in payloads:
+            resp = submit_form(form, url, payload)
+            if payload in resp.text:
+                print(Fore.LIGHTMAGENTA_EX + f"[!] XSS detected in form #{idx} with payload: {repr(payload)}" + Style.RESET_ALL)
+                vulnerable = True
+        if not vulnerable:
             print(Fore.LIGHTBLACK_EX + f"[-] No XSS detected in form #{idx}" + Style.RESET_ALL)
+
 
 def main():
     parser = argparse.ArgumentParser(description="Scan a domain for XSS vulnerabilities (VENOM)")

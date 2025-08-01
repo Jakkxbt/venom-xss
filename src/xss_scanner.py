@@ -7,6 +7,19 @@ import argparse
 from colorama import Fore, Style, init
 import os
 
+def load_payloads(filename):
+    with open(filename, "r") as f:
+        payloads = []
+        for line in f:
+            line = line.strip()
+            # Ignore comments and blank lines
+            if line and not line.startswith("//") and not line.startswith("#"):
+                # Remove the long "aaaa..." prefix if present (optional)
+                payload = line.replace("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "")
+                payloads.append(payload)
+        return payloads
+
+
 init(autoreset=True)
 
 BANNER_PATH = os.path.join(os.path.dirname(__file__), "banner.txt")

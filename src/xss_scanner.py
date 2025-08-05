@@ -64,11 +64,17 @@ def submit_form(form, url, payload):
     return res
 
 def scan_xss(url):
+    # Always load payloads relative to THIS file's location
+    base_dir = os.path.abspath(os.path.dirname(__file__))
     payload_files = [
-        os.path.join(os.path.dirname(__file__), "payloads.txt"),
-        os.path.join(os.path.dirname(__file__), "XSSv2.txt"),
+        os.path.join(base_dir, "payloads.txt"),
+        os.path.join(base_dir, "XSSv2.txt"),
     ]
     payloads = load_payloads(payload_files)
+    print(Fore.LIGHTYELLOW_EX + f"[VENOM] Loaded {len(payloads)} payloads from both files." + Style.RESET_ALL)
+
+    # The rest of your scan_xss code below...
+
     ...
 
     forms = find_forms(url)
